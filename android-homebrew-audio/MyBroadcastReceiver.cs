@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Linq;
 using Android.App;
 using Android.Bluetooth;
 using Android.Content;
+using Android.OS;
 using Android.Views;
 
 namespace android_homebrew_audio
@@ -18,7 +20,10 @@ namespace android_homebrew_audio
             if(intent.Action == "music-controls-media-button")
             {
                 var buttonPressed = (KeyEvent) intent.GetParcelableExtra(Intent.ExtraKeyEvent);
-                Console.WriteLine(buttonPressed.KeyCode);
+                if(buttonPressed.Action == KeyEventActions.Up)
+                {
+                    Console.WriteLine(buttonPressed.KeyCode);
+                }
             }
             else
             {

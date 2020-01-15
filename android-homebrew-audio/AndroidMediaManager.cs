@@ -7,7 +7,7 @@ namespace android_homebrew_audio
     public class AndroidMediaManager : IDisposable
     {
         protected MediaPlayer mediaPlayer;
-        protected AudioManager audioManager;
+        public AudioManager audioManager;
 
         public AndroidMediaManager(AudioManager audioManager)
         {

@@ -23,13 +23,9 @@ namespace android_homebrew_audio
         {
             Intent.ActionMediaButton,
             "this.is.a.TEST",
-            "this.is.a.SECOND_TEST",
             BluetoothAdapter.ActionConnectionStateChanged,
-            Android.Bluetooth.BluetoothDevice.ActionAclConnected,
-            BluetoothDevice.ActionFound,
             "music-controls-media-button",
             Android.Bluetooth.BluetoothHeadset.ActionVendorSpecificHeadsetEvent,
-            "music-controls-next"
         };
         #endregion
 
@@ -50,6 +46,7 @@ namespace android_homebrew_audio
             fab.Click += FabOnClick;
 
             mediaManager = new AndroidMediaManager((AudioManager)GetSystemService(AudioService));
+            mediaManager.audioManager.RegisterMediaButtonEventReceiver(PendingIntent.GetBroadcast(this, 0, new Intent("music-controls-media-button"),PendingIntentFlags.UpdateCurrent));
 
             receiver = new MyBroadcastReceiver();
             intentFilter = new IntentFilter();
@@ -69,7 +66,6 @@ namespace android_homebrew_audio
         protected override void OnPause()
         {
             base.OnPause();
-            UnregisterReceiver(receiver);
         }
 
         public override bool OnCreateOptionsMenu(IMenu menu)
@@ -80,16 +76,13 @@ namespace android_homebrew_audio
 
         public override bool OnOptionsItemSelected(IMenuItem item)
         {
-            Intent message = new Intent("this.is.a.SECOND_TEST");
+            Intent message = new Intent("this.is.a.TEST");
             SendBroadcast(message);
             return true;
         }
 
         private void FabOnClick(object sender, EventArgs eventArgs)
         {
-            Intent message = new Intent("this.is.a.TEST");
-            SendBroadcast(message);
-
             mediaManager.Start("https://traffic.libsyn.com/secure/draudioarchives/07312019_the_dave_ramsey_show_archive_1.mp3");
         }
 
