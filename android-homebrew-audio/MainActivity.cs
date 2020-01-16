@@ -1,14 +1,11 @@
 ﻿using System;
 using Android.App;
-using Android.Bluetooth;
 using Android.Content;
-using Android.Media;
 using Android.OS;
 using Android.Runtime;
 using Android.Support.Design.Widget;
 using Android.Support.V7.App;
 using Android.Views;
-using Android.Widget;
 
 namespace android_homebrew_audio
 {
@@ -16,17 +13,7 @@ namespace android_homebrew_audio
     public class MainActivity : AppCompatActivity
     {
         #region Bluetooth Controls
-        MyBroadcastReceiver receiver;
-
-        private IntentFilter intentFilter;
-        private string[] intents = new string[]
-        {
-            Intent.ActionMediaButton,
-            "this.is.a.TEST",
-            BluetoothAdapter.ActionConnectionStateChanged,
-            "music-controls-media-button",
-            Android.Bluetooth.BluetoothHeadset.ActionVendorSpecificHeadsetEvent,
-        };
+        
         #endregion
 
         #region Media Playback
@@ -45,22 +32,13 @@ namespace android_homebrew_audio
             FloatingActionButton fab = FindViewById<FloatingActionButton>(Resource.Id.fab);
             fab.Click += FabOnClick;
 
-            mediaManager = new AndroidMediaManager((AudioManager)GetSystemService(AudioService));
-            mediaManager.audioManager.RegisterMediaButtonEventReceiver(PendingIntent.GetBroadcast(this, 0, new Intent("music-controls-media-button"),PendingIntentFlags.UpdateCurrent));
 
-            receiver = new MyBroadcastReceiver();
-            intentFilter = new IntentFilter();
-            foreach(var intent in intents)
-            {
-                intentFilter.AddAction(intent);
-            }
-
+            mediaManager = AndroidMediaManager.SharedInstance;
         }
 
         protected override void OnResume()
         {
             base.OnResume();
-            RegisterReceiver(receiver, intentFilter);
         }
 
         protected override void OnPause()
@@ -83,7 +61,7 @@ namespace android_homebrew_audio
 
         private void FabOnClick(object sender, EventArgs eventArgs)
         {
-            mediaManager.Start("https://traffic.libsyn.com/secure/draudioarchives/07312019_the_dave_ramsey_show_archive_1.mp3");
+            mediaManager.LoadMediaItem("https://traffic.libsyn.com/secure/draudioarchives/07312019_the_dave_ramsey_show_archive_1.mp3");
         }
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)

@@ -22,6 +22,27 @@ namespace android_homebrew_audio
                 var buttonPressed = (KeyEvent) intent.GetParcelableExtra(Intent.ExtraKeyEvent);
                 if(buttonPressed.Action == KeyEventActions.Up)
                 {
+                    switch (buttonPressed.KeyCode)
+                    {
+                        case Keycode.MediaPause:
+                        case Keycode.MediaPlay:
+                        case Keycode.MediaPlayPause:
+                            AndroidMediaManager.SharedInstance.PlayPause();
+                            break;
+                        case Keycode.MediaNext:
+                        case Keycode.MediaFastForward:
+                        case Keycode.MediaSkipForward:
+                        case Keycode.MediaStepForward:
+                            AndroidMediaManager.SharedInstance.StepForward();
+                            break;
+                        case Keycode.MediaPrevious:
+                        case Keycode.MediaRecord:
+                        case Keycode.MediaSkipBackward:
+                        case Keycode.MediaStepBackward:
+                            AndroidMediaManager.SharedInstance.StepBackward();
+                            break;
+
+                    }
                     Console.WriteLine(buttonPressed.KeyCode);
                 }
             }
