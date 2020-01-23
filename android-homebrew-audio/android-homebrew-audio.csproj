@@ -63,10 +63,10 @@
     <Compile Include="AndroidMediaManager.cs" />
     <Compile Include="MyBroadcastReceiver.cs" />
     <Compile Include="MyMediaPlayer.cs" />
-    <Compile Include="Resources\values\MainActivity.cs" />
     <Compile Include="MyBrowserService.cs" />
     <Compile Include="MediaSessionCallback.cs" />
     <Compile Include="MediaBrowser.cs" />
+    <Compile Include="MainActivity.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />
