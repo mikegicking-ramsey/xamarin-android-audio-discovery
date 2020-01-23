@@ -46,6 +46,12 @@ namespace android_homebrew_audio
             base.OnPause();
         }
 
+        protected override void OnDestroy()
+        {
+            AndroidMediaManager.SharedInstance.NotificationManager.Dispose();
+            base.OnDestroy();
+        }
+
         public override bool OnCreateOptionsMenu(IMenu menu)
         {
             MenuInflater.Inflate(Resource.Menu.menu_main, menu);

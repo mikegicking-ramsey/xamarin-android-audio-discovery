@@ -3,6 +3,8 @@ using Android.Media;
 using Android.Content;
 using Android.App;
 using Android.Bluetooth;
+using Android.Runtime;
+using Java.Lang;
 
 namespace android_homebrew_audio
 {
@@ -12,7 +14,10 @@ namespace android_homebrew_audio
         public static AndroidMediaManager SharedInstance => instance.Value;
 
         protected MediaPlayer mediaPlayer;
-        public AudioManager audioManager;
+        public AudioManager AudioManager;
+        public MyNotificationManager NotificationManager;
+
+        public bool IsPlaying => mediaPlayer?.IsPlaying == true;
 
         #region Bluetooth Controls
 
@@ -25,6 +30,10 @@ namespace android_homebrew_audio
             "this.is.a.TEST",
             BluetoothAdapter.ActionConnectionStateChanged,
             "music-controls-media-button",
+            "music-controls-previous",
+            "music-controls-pause",
+            "music-controls-play",
+            "music-controls-next",
             Android.Bluetooth.BluetoothHeadset.ActionVendorSpecificHeadsetEvent,
         };
 
@@ -32,8 +41,8 @@ namespace android_homebrew_audio
 
         private AndroidMediaManager(AudioManager audioManager)
         {
-            this.audioManager = audioManager;
-            audioManager.RegisterMediaButtonEventReceiver(PendingIntent.GetBroadcast(Application.Context, 0, new Intent("music-controls-media-button"), PendingIntentFlags.UpdateCurrent));
+            this.AudioManager = audioManager;
+            AudioManager.RegisterMediaButtonEventReceiver(PendingIntent.GetBroadcast(Application.Context, 0, new Intent("music-controls-media-button"), PendingIntentFlags.UpdateCurrent));
 
             receiver = new MyBroadcastReceiver();
             intentFilter = new IntentFilter();
@@ -43,9 +52,11 @@ namespace android_homebrew_audio
             }
 
             Application.Context.RegisterReceiver(receiver, intentFilter);
+
+            
         }
 
-        public void LoadMediaItem(String mediaUrl)
+        public void LoadMediaItem(string mediaUrl)
         {
             if(mediaPlayer == null)
             {
@@ -59,6 +70,7 @@ namespace android_homebrew_audio
             mediaPlayer.SetDataSource(mediaUrl);
             mediaPlayer.Prepare();
             mediaPlayer.Start();
+            NotificationManager = new MyNotificationManager();
         }
 
         public void PlayPause()

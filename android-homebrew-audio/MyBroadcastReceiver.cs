@@ -17,7 +17,7 @@ namespace android_homebrew_audio
 
         public override void OnReceive(Context context, Intent intent)
         {
-            if(intent.Action == "music-controls-media-button")
+            if (intent.Action == "music-controls-media-button")
             {
                 var buttonPressed = (KeyEvent) intent.GetParcelableExtra(Intent.ExtraKeyEvent);
                 if(buttonPressed.Action == KeyEventActions.Up)
@@ -45,6 +45,22 @@ namespace android_homebrew_audio
                     }
                     Console.WriteLine(buttonPressed.KeyCode);
                 }
+            }
+            else if (intent.Action == "music-controls-next")
+            {
+                AndroidMediaManager.SharedInstance.StepForward();
+            }
+            else if (intent.Action == "music-controls-pause")
+            {
+                AndroidMediaManager.SharedInstance.PlayPause();
+            }
+            else if (intent.Action == "music-controls-play")
+            {
+                AndroidMediaManager.SharedInstance.PlayPause();
+            }
+            else if (intent.Action == "music-controls-previous")
+            {
+                AndroidMediaManager.SharedInstance.StepBackward();
             }
             else
             {
