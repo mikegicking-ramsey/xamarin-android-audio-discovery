@@ -43,7 +43,6 @@ namespace android_homebrew_audio
                             break;
 
                     }
-                    Console.WriteLine(buttonPressed.KeyCode);
                 }
             }
             else
