@@ -65,6 +65,7 @@
     <Compile Include="MyBroadcastReceiver.cs" />
     <Compile Include="MyMediaPlayer.cs" />
     <Compile Include="MyNotificationManager.cs" />
+    <Compile Include="MyMediaSessionCallback.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />

@@ -5,6 +5,7 @@ using Android.App;
 using Android.Bluetooth;
 using Android.Runtime;
 using Java.Lang;
+using Android.Media.Session;
 
 namespace android_homebrew_audio
 {
@@ -34,7 +35,7 @@ namespace android_homebrew_audio
             "music-controls-pause",
             "music-controls-play",
             "music-controls-next",
-            Android.Bluetooth.BluetoothHeadset.ActionVendorSpecificHeadsetEvent,
+            Android.Bluetooth.BluetoothHeadset.ActionVendorSpecificHeadsetEvent
         };
 
         #endregion
@@ -42,7 +43,12 @@ namespace android_homebrew_audio
         private AndroidMediaManager(AudioManager audioManager)
         {
             this.AudioManager = audioManager;
-            AudioManager.RegisterMediaButtonEventReceiver(PendingIntent.GetBroadcast(Application.Context, 0, new Intent("music-controls-media-button"), PendingIntentFlags.UpdateCurrent));
+
+            MediaSession mediaSession = new MediaSession(Application.Context, "tag");
+
+            mediaSession.SetMediaButtonReceiver(PendingIntent.GetBroadcast(Application.Context, 0, new Intent("music-controls-media-button"), PendingIntentFlags.UpdateCurrent));
+
+            mediaSession.SetCallback(new MyMediaSessionCallback());
 
             receiver = new MyBroadcastReceiver();
             intentFilter = new IntentFilter();
@@ -53,7 +59,7 @@ namespace android_homebrew_audio
 
             Application.Context.RegisterReceiver(receiver, intentFilter);
 
-            
+            NotificationManager = new MyNotificationManager();
         }
 
         public void LoadMediaItem(string mediaUrl)
@@ -70,7 +76,8 @@ namespace android_homebrew_audio
             mediaPlayer.SetDataSource(mediaUrl);
             mediaPlayer.Prepare();
             mediaPlayer.Start();
-            NotificationManager = new MyNotificationManager();
+            NotificationManager.InitializeIfNeeded();
+            NotificationManager.Notify();
         }
 
         public void PlayPause()
@@ -83,6 +90,16 @@ namespace android_homebrew_audio
             {
                 mediaPlayer.Start();
             }
+        }
+
+        public void Play()
+        {
+            mediaPlayer.Start();
+        }
+
+        public void Pause()
+        {
+            mediaPlayer.Pause();
         }
 
         public void StepForward()
@@ -98,6 +115,7 @@ namespace android_homebrew_audio
         public void Dispose()
         {
             mediaPlayer.Release();
+            NotificationManager.Dispose();
         }
     }
 }

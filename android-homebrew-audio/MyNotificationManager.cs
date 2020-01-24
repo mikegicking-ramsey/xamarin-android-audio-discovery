@@ -13,29 +13,87 @@ namespace android_homebrew_audio
 
         private string channelId = "audio-manager-channel-id";
 
+		#region Media Control Actions
+
+		private Notification.Action previousAction;
+		private Notification.Action nextAction;
+		private Notification.Action skipBackwardAction;
+		private Notification.Action skipForwardAction;
+		private Notification.Action playAction;
+		private Notification.Action pauseAction;
+		private Notification.Action destroyAction;
+
+        #endregion
+
         public MyNotificationManager()
         {
-            this.notificationManager = (NotificationManager)Application.Context.GetSystemService(Context.NotificationService);
-
-            ICharSequence name = new Java.Lang.String(Application.Context.ApplicationInfo.Name);
-            var notificationChannel = new NotificationChannel(channelId, name, Android.App.NotificationImportance.Default);
-            notificationManager.CreateNotificationChannel(notificationChannel);
-
-			CreateBuilder();
-
-			notification = notificationBuilder.Build();
-			notificationManager.Notify(0, notification);
+            notificationManager = (NotificationManager)Application.Context.GetSystemService(Context.NotificationService);
         }
+
+        public void InitializeIfNeeded()
+        {
+			if (notificationBuilder == null || notification == null)
+			{
+				ICharSequence name = new Java.Lang.String(Application.Context.ApplicationInfo.Name);
+				var notificationChannel = new NotificationChannel(channelId, name, Android.App.NotificationImportance.Default);
+				notificationManager.CreateNotificationChannel(notificationChannel);
+
+				CreateActions();
+
+				CreateBuilder();
+
+				notification = notificationBuilder.Build();
+			}
+		}
+
+        public void Notify()
+        {
+			notificationManager.Notify(0, notification);
+		}
 
         public void Dispose()
         {
 			notificationManager.Cancel(0);
         }
 
+        //TODO: Toggle play/pause icons
+
+        private void CreateActions()
+        {
+			var context = Application.Context;
+
+			var previousIntent = new Intent("music-controls-previous");
+			var previousPendingIntent = PendingIntent.GetBroadcast(context, 1, previousIntent, 0);
+			previousAction = new Notification.Action(Android.Resource.Drawable.IcMediaPrevious, "", previousPendingIntent);
+
+			var nextIntent = new Intent("music-controls-next");
+			var nextPendingIntent = PendingIntent.GetBroadcast(context, 1, nextIntent, 0);
+			nextAction = new Notification.Action(Android.Resource.Drawable.IcMediaNext, "", nextPendingIntent);
+
+			var skipBackwardIntent = new Intent("music-controls-skip-backward");
+			var skipBackwardPendingIntent = PendingIntent.GetBroadcast(context, 1, skipBackwardIntent, 0);
+			skipBackwardAction = new Notification.Action(Android.Resource.Drawable.IcMediaRew, "", skipBackwardPendingIntent);
+
+			var skipForwardIntent = new Intent("music-controls-skip-forward");
+			var skipForwardPendingIntent = PendingIntent.GetBroadcast(context, 1, skipForwardIntent, 0);
+			skipForwardAction = new Notification.Action(Android.Resource.Drawable.IcMediaFf, "", skipForwardPendingIntent);
+
+			var playIntent = new Intent("music-controls-play");
+			var playPendingIntent = PendingIntent.GetBroadcast(context, 1, playIntent, 0);
+			playAction = new Notification.Action(Android.Resource.Drawable.IcMediaRew, "", playPendingIntent);
+
+			var pauseIntent = new Intent("music-controls-pause");
+			var pausePendingIntent = PendingIntent.GetBroadcast(context, 1, pauseIntent, 0);
+			pauseAction = new Notification.Action(Android.Resource.Drawable.IcMediaPause, "", pausePendingIntent);
+
+			var destroyIntent = new Intent("music-controls-destroy");
+			var destroyPendingIntent = PendingIntent.GetBroadcast(context, 1, destroyIntent, 0);
+			destroyAction = new Notification.Action(Android.Resource.Drawable.IcMenuCloseClearCancel, "", destroyPendingIntent);
+		}
+
 		private void CreateBuilder()
 		{
-			var context = Application.Context;
-			var builder = new Notification.Builder(context, channelId);
+			var builder = new Notification.Builder(Application.Context, channelId);
 
 			builder.SetChannelId(channelId);
 
@@ -70,7 +128,7 @@ namespace android_homebrew_audio
 			//TODO: Set LargeIcon
 			// builder.SetLargeIcon(AlbumArt.jpg);
 
-			//Open app if tapped
+			//TODO: Open app if tapped
 			//Intent resultIntent = new Intent(context, typeof(Application));
 			//resultIntent.SetAction(Intent.ActionMain);
 			//resultIntent.AddCategory(Intent.CategoryLauncher);
@@ -82,47 +140,30 @@ namespace android_homebrew_audio
 
             /* Previous  */
             controlsCount++;
-            Intent previousIntent = new Intent("music-controls-previous");
-            PendingIntent previousPendingIntent = PendingIntent.GetBroadcast(context, 1, previousIntent, 0);
-			Notification.Action previousAction = new Notification.Action(Android.Resource.Drawable.IcMediaRew, "", previousPendingIntent);
             builder.AddAction(previousAction);
 
             /* Play/Pause */
             if (AndroidMediaManager.SharedInstance.IsPlaying)
             {
 				controlsCount++;
-				Intent pauseIntent = new Intent("music-controls-pause");
-				PendingIntent pausePendingIntent = PendingIntent.GetBroadcast(context, 1, pauseIntent, 0);
-				Notification.Action pauseAction = new Notification.Action(Android.Resource.Drawable.IcMediaPause, "", pausePendingIntent);
 				builder.AddAction(pauseAction);
 			}
             else
             {
 				controlsCount++;
-				Intent playIntent = new Intent("music-controls-play");
-				PendingIntent playPendingIntent = PendingIntent.GetBroadcast(context, 1, playIntent, 0);
-				Notification.Action playAction = new Notification.Action(Android.Resource.Drawable.IcMediaRew, "", playPendingIntent);
 				builder.AddAction(playAction);
 			}
 
 			/* Next */
 			controlsCount++;
-			Intent nextIntent = new Intent("music-controls-next");
-			PendingIntent nextPendingIntent = PendingIntent.GetBroadcast(context, 1, nextIntent, 0);
-			Notification.Action nextAction = new Notification.Action(Android.Resource.Drawable.IcMediaFf, "", nextPendingIntent);
 			builder.AddAction(nextAction);
 
-			///* Close */
-			//if (infos.hasClose)
-			//{
-			//	nbControls++;
-			//	Intent destroyIntent = new Intent("music-controls-destroy");
-			//	PendingIntent destroyPendingIntent = PendingIntent.getBroadcast(context, 1, destroyIntent, 0);
-			//	builder.addAction(this.getResourceId(infos.closeIcon, android.R.drawable.ic_menu_close_clear_cancel), "", destroyPendingIntent);
-			//}
+            /* Close */
+			controlsCount++;
+            builder.AddAction(destroyAction);
 
-			//If 5.0 >= use MediaStyle
-			if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.Lollipop)
+            //If 5.0 >= use MediaStyle
+            if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.Lollipop)
 			{
 				int[] args = new int[controlsCount];
 				for (int i = 0; i < controlsCount; ++i)
@@ -132,7 +173,6 @@ namespace android_homebrew_audio
 				var style = new Notification.MediaStyle();
 				style.SetShowActionsInCompactView(args);
 				builder.SetStyle(style);
-				//builder.SetStyle(new Notification.MediaStyle().SetShowActionsInCompactView(args));
 			}
 			this.notificationBuilder = builder;
 		}
