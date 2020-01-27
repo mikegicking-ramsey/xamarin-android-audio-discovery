@@ -59,18 +59,17 @@ namespace android_homebrew_audio
 			notificationManager.Cancel(0);
         }
 
-        //TODO: Toggle play/pause icons
         public void UpdatePlayPause()
         {
-			var playPauseAction = notification.Actions[1];
-            if (playPauseAction.Equals(pauseAction))
+            if (AndroidMediaManager.SharedInstance.IsPlaying)
             {
-				notification.Actions[1] = playAction;
+				notificationBuilder.SetOngoing(true);
             }
             else
             {
-				notification.Actions[1] = pauseAction;
+				notificationBuilder.SetOngoing(false);
             }
+			notification = notificationBuilder.Build();
 			notificationManager.Notify(0, notification);
         }
 
@@ -130,7 +129,14 @@ namespace android_homebrew_audio
 			//{
 			//	builder.setOngoing(true);
 			//}
-			builder.SetOngoing(true);
+			if (AndroidMediaManager.SharedInstance.IsPlaying)
+            {
+				builder.SetOngoing(true);
+            }
+            else
+            {
+				builder.SetOngoing(false);
+            }
 
 			//If 5.0 >= set the controls to be visible on lockscreen
 			if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.Lollipop)
