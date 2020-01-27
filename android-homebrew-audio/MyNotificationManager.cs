@@ -35,7 +35,10 @@ namespace android_homebrew_audio
 			if (notificationBuilder == null || notification == null)
 			{
 				ICharSequence name = new Java.Lang.String(Application.Context.ApplicationInfo.Name);
-				var notificationChannel = new NotificationChannel(channelId, name, Android.App.NotificationImportance.Default);
+				var notificationChannel = new NotificationChannel(channelId, name, Android.App.NotificationImportance.Max);
+                notificationChannel.SetVibrationPattern(new long[] { 0 });
+				notificationChannel.EnableVibration(true);
+
 				notificationManager.CreateNotificationChannel(notificationChannel);
 
 				CreateActions();
@@ -57,6 +60,19 @@ namespace android_homebrew_audio
         }
 
         //TODO: Toggle play/pause icons
+        public void UpdatePlayPause()
+        {
+			var playPauseAction = notification.Actions[1];
+            if (playPauseAction.Equals(pauseAction))
+            {
+				notification.Actions[1] = playAction;
+            }
+            else
+            {
+				notification.Actions[1] = pauseAction;
+            }
+			notificationManager.Notify(0, notification);
+        }
 
         private void CreateActions()
         {
@@ -80,7 +96,7 @@ namespace android_homebrew_audio
 
 			var playIntent = new Intent("music-controls-play");
 			var playPendingIntent = PendingIntent.GetBroadcast(context, 1, playIntent, 0);
-			playAction = new Notification.Action(Android.Resource.Drawable.IcMediaRew, "", playPendingIntent);
+			playAction = new Notification.Action(Android.Resource.Drawable.IcMediaPlay, "", playPendingIntent);
 
 			var pauseIntent = new Intent("music-controls-pause");
 			var pausePendingIntent = PendingIntent.GetBroadcast(context, 1, pauseIntent, 0);
@@ -159,8 +175,8 @@ namespace android_homebrew_audio
 			builder.AddAction(nextAction);
 
             /* Close */
-			controlsCount++;
-            builder.AddAction(destroyAction);
+			//controlsCount++;
+            //builder.AddAction(destroyAction);
 
             //If 5.0 >= use MediaStyle
             if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.Lollipop)
@@ -174,6 +190,7 @@ namespace android_homebrew_audio
 				style.SetShowActionsInCompactView(args);
 				builder.SetStyle(style);
 			}
+
 			this.notificationBuilder = builder;
 		}
 	}

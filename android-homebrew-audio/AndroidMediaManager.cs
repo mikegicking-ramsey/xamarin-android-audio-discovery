@@ -90,6 +90,7 @@ namespace android_homebrew_audio
             {
                 mediaPlayer.Start();
             }
+            NotificationManager.UpdatePlayPause();
         }
 
         public void Play()
